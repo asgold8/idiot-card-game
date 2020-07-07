@@ -92,3 +92,14 @@ label {
 .form-button:hover {
   background-color: gray;
 }
+
+.room-container {
+  border: 2px solid white;
+  border-radius: 5px;
+  padding: 5px;
+}
+
+.room-container > div {
+  display: inline;
+  padding: 2px;
+}
