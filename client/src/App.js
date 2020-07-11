@@ -1,7 +1,7 @@
 import React,{ useState,useEffect } from 'react';
 import { Route, Switch, useLocation } from 'react-router-dom';
 import './App.css';
-import socket from './socket';
+import {socket} from './socket';
 import LandingForm from './components/LandingForm';
 import Room from './components/Room';
 import useUuid from './hooks/useUuid';
@@ -27,10 +27,6 @@ const App = () => {
         console.log(data);
         console.log(`loading player ${data?.name}`);
         setPlayer(data);
-      });
-
-      socket.on('entered', (data)=>{
-        console.log(`player ${data?.name} has entered`);
       });
     }
     setLoaded(true);

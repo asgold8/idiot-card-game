@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useParams, useHistory } from 'react-router-dom';
-import socket from '../socket';
+import {socket} from '../socket';
 import useUuid from '../hooks/useUuid';
 
 const LandingForm = () => {
@@ -19,9 +19,10 @@ const LandingForm = () => {
       socket.emit('join-room', { uuid, name, room });
     }
     //else create room
+    //TODO: if clicked create and room exists, display error
     else{
       console.log('attempting create-room');
-      socket.emit('create-room', { uuid, name, room });
+      socket.emit('create-room', { uuid, name, room });            
       history.push(room);
     }
 

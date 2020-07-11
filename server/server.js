@@ -34,6 +34,7 @@ const joinRoomAndNotify = (io, socket, room, player) => {
   io.in(room).emit('entered',player);
 };
 
+//TODO: if room already exists, reject create and notify
 const createRoom = (io,socket,room,playerData) => {
   console.log(`creating room: ${room}`)
   rooms.push(room);
@@ -93,6 +94,12 @@ io.on('connection', (socket) => {
   socket.on('create-room', (data) => {
     createRoom(io,socket,data.room,createPlayer(data,true));
   });
+
+  socket.on('message', (data) => {
+    const { room, player, msg } = data;
+    console.log(`room: ${room}, player: ${player}, msg: ${msg}`);
+    io.to(room).emit('chat',{player,msg});
+  })
 
   // TODO: assign a different host on disconnect
   socket.on('disconnect', () => {

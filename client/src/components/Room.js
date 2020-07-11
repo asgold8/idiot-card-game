@@ -12,7 +12,7 @@ const Room = ({player}) => {
       <h3>Room: {roomName}</h3>
       <div className='room-container' >
         <Game />
-        <Chat />
+        <Chat player={player} room={roomName}/>
       </div>
     </div>
   );

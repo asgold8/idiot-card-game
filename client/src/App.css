@@ -93,6 +93,14 @@ label {
   background-color: gray;
 }
 
+#messages {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  border-bottom: 1px solid lightgrey;
+  overflow-y: scroll;
+}
+
 .room-container {
   border: 2px solid white;
   border-radius: 5px;
