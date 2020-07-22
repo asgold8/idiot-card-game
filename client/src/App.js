@@ -16,7 +16,7 @@ const App = () => {
 
   //only run this once
   useEffect(() => {      
-    console.log(player);
+    //console.log(player);
     setLoaded(false);
     if(!player){
 
@@ -24,8 +24,8 @@ const App = () => {
       socket.emit('initialize',uuid,room);
 
       socket.on('load-player', (data)=>{
-        console.log(data);
-        console.log(`loading player ${data?.name}`);
+        //console.log(data);
+        //console.log(`loading player ${data?.name}`);
         setPlayer(data);
       });
     }

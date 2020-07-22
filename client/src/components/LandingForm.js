@@ -13,6 +13,7 @@ const LandingForm = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
+    
     // if url param already has the roomName; try to join the room
     if ( roomName ){
       console.log('attempting join-room');
@@ -39,7 +40,7 @@ const LandingForm = () => {
           required
           minLength="1"
           maxLength="12"
-          onChange={(e)=>{setName(e.target.value)}}
+          onChange={(e)=>{setName(e.target.value.replace(' ',''))}}
           className="form-input"
         />
         <label>Room:</label>
@@ -50,7 +51,7 @@ const LandingForm = () => {
           minLength="1"
           maxLength="12"
           readOnly={roomName ?? false}
-          onChange={(e)=>{setRoom(e.target.value)}}
+          onChange={(e)=>{setRoom(e.target.value.replace(' ',''))}}
           className="form-input"
         />
         <button className="form-button">{roomName ? "Join" : "Create"}</button>

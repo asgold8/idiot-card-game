@@ -10,8 +10,9 @@ const app = express();
 const server = http.createServer(app);
 const io = socketIo(server);
 
-const rooms = [];
-const players = [];
+let rooms = [];
+let players = [];
+const uuids = [];
 
 const createPlayer = (data, isHost) => {
   const newPlayer = {room: data.room, uuid: data.uuid, name: data.name, isHost};
@@ -28,9 +29,15 @@ const joinRoomAndNotify = (io, socket, room, player) => {
   console.log(player);
   //send player info to client
   socket.emit('load-player', player);
+  //send list of players in the room
+  const playerList = players.filter(p => p.room === room);
+  console.log('here\'s the players:');
+  console.log(playerList);
+  socket.emit('player-list-load',playerList);
   //join room
   socket.join(room);
   //let everyone in the room know player has entered
+  console.log('emit to room player has entered');
   io.in(room).emit('entered',player);
 };
 
@@ -43,17 +50,22 @@ const createRoom = (io,socket,room,playerData) => {
 };
 
 io.on('connection', (socket) => {
-  console.log(socket.id);
+  console.log(socket.id + ' has connected.');
   
   socket.on('initialize', (uuid,room)=>{
     console.log('initialize');
-    //if uuid doesn't exist, add it to collection
-    if( players.indexOf(uuid) < 0 ){
-      console.log(`uuid added: ${uuid}`);
-      players.push(uuid);
-    }
-    else {
+    
+    const uuidIndex = uuids.findIndex(u => u.uuid === uuid);
+
+    if(uuidIndex>-1) {
       console.log(`uuid: ${uuid} already exists`);
+      //update the socketid for the uuid
+      console.log('uuid before update:');
+      console.log(uuids[uuidIndex]);
+      uuids[uuidIndex].socketId = socket.id;
+      console.log('uuid after update:');
+      console.log(uuids[uuidIndex]);
+
       if(rooms.indexOf(room) > -1){
         console.log(`room "${room}" exists`)
         const player = players.find(p => p.room === room && p.uuid === uuid);
@@ -62,6 +74,14 @@ io.on('connection', (socket) => {
           joinRoomAndNotify(io,socket,room,player);
         } 
       }
+    }
+    //if uuid doesn't exist, add it to collection
+    else {
+      console.log(`uuid added: ${uuid}`);
+      console.log('socket.id: ' +socket.id);      
+      uuids.push({uuid: uuid, socketId: socket.id});
+      console.log('uuids:');
+      console.log(uuids);
     }
   });
 
@@ -97,13 +117,42 @@ io.on('connection', (socket) => {
 
   socket.on('message', (data) => {
     const { room, player, msg } = data;
-    console.log(`room: ${room}, player: ${player}, msg: ${msg}`);
+    console.log(`room: ${room}, player: ${player.name}, msg: ${msg}`);
     io.to(room).emit('chat',{player,msg});
-  })
+  });
 
+  socket.on('request-players-list', (room) => {
+    console.log('players list requested');
+    const playerList = players.filter(p => p.room === room);
+    console.log('here\'s the players:');
+    console.log(playerList);
+    socket.emit('player-list-load',playerList);
+  });
+
+  // TODO: notify on disconnect
   // TODO: assign a different host on disconnect
   socket.on('disconnect', () => {
     console.log(socket.id + ' disconnected');
+    const uuid = uuids.find(u => u.socketId === socket.id)?.uuid;
+    console.log('uuid: '+uuid);
+    const player = players?.find(p => p.uuid === uuid);
+    if(player){      
+      console.log(`emitting player: ${player.name} disconnecting from: ${player.room}`);
+      io.to(player.room).emit('disconnected',player);
+      players = players.filter(p => p.name !== player.name && p.uuid !== player.uuid);
+      const remainingPlayers = players.filter(p => p.room === player.room);
+      console.log('players in room post-filter:');
+      console.log(remainingPlayers);
+      if(remainingPlayers.length<1){
+        console.log(`no players remaining in room: ${player.room}`);
+        if(rooms.length>0){
+          console.log('removing room');
+          rooms = rooms.filter(r => r !== player.room);
+          console.log('rooms remaining:');
+          console.log(rooms);
+        }
+      }      
+    }
   });
 });
 
