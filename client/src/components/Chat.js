@@ -35,8 +35,8 @@ const Chat = ({player,room}) => {
   useEffect(() => {
     if(!players){
       setIsLoading(true);
-      console.log('players requested');
-      requestPlayersList(room);
+      //console.log('players requested');
+      //requestPlayersList(room);
       subscribeToPlayers((err, data) => {
         if(err) return;
 
@@ -72,7 +72,7 @@ const Chat = ({player,room}) => {
 
   useEffect(() => {
     if(players){
-      //console.log('this sucker only runs once.');
+      console.log('this sucker only runs once.');
     onPlayerEntered((err, data) => {
       if(err) return;
       const player = data;
@@ -135,10 +135,11 @@ const Chat = ({player,room}) => {
     <div className="chat-container">
       <ul id="players">
         <li>{`${players.length} in the room`}</li>
-        {players.map((player,index) => (
+        {players.map((p,index) => (
           <li key={index}>
-            <span>{player.name}</span>
-            {player.isHost && <span> (host)</span>}
+            {p.name === player.name && <span>*</span>}
+            <span>{p.name}</span>
+            {p.isHost && <span> (host)</span>}
           </li>
         ))}
       </ul>
